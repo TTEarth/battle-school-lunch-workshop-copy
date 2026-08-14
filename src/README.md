@@ -23,6 +23,18 @@ src/
 NEIS_API_KEY=<발급받은 키> docker compose up --build
 ```
 
+또는 원커맨드 스크립트:
+
+```bash
+# bash
+NEIS_API_KEY=<키> ./scripts/run-app.sh          # Docker Compose
+NEIS_API_KEY=<키> ./scripts/run-app.sh --local  # Docker 없이 로컬 실행
+
+# PowerShell
+$env:NEIS_API_KEY="<키>"; ./scripts/run-app.ps1         # Docker Compose
+$env:NEIS_API_KEY="<키>"; ./scripts/run-app.ps1 -Local  # Docker 없이 로컬 실행
+```
+
 - 프론트엔드: http://localhost:5173
 - 백엔드: http://localhost:8000 (문서: /docs)
 
