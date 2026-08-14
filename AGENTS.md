@@ -11,6 +11,7 @@
 ## 앱 구조와 실행/테스트 명령
 
 - 실행: `docker compose up --build` 또는 `scripts/run-app.ps1` / `scripts/run-app.sh` (`-Local`/`--local`은 Docker 없이 실행). `NEIS_API_KEY` 환경 변수 필요(`.env.example` 참고).
+- Azure 배포: `azd up` (루트 `azure.yaml` + `infra/` bicep, Container Apps + ACR 원격 빌드, backend/frontend/mcp 3개 서비스). `NEIS_API_KEY`는 `azd env set`으로 주입합니다.
 - 백엔드 테스트: `cd src/backend && python -m pytest` (단위+통합).
 - MCP 서버: `cd src/mcp && python -m app.server`로 실행(Streamable HTTP, 기본 :8001, 엔드포인트 `/mcp`). 테스트는 `cd src/mcp && python -m pytest` (단위+통합).
 - 프론트엔드 테스트: `cd src/frontend && npm test` (Vitest 통합), 타입 검사는 `npx tsc --noEmit`.
