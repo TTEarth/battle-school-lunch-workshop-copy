@@ -2,19 +2,28 @@
 
 from typing import Any
 
+from .neis_client import NeisApiError
 from .schemas import Meal, School
 
 LUNCH_MEAL_CODE = "2"
 
 
 def _extract_rows(payload: dict[str, Any], root_key: str) -> list[dict[str, Any]]:
-    """NEIS 응답에서 row 목록을 추출한다. 데이터 없음(INFO-200)은 빈 목록."""
+    """NEIS 응답에서 row 목록을 추출한다.
+
+    데이터 없음(INFO-200)은 빈 목록으로, 그 외 RESULT 오류 코드(인증 실패,
+    필수 값 누락 등)와 예상 밖 구조는 NeisApiError 로 구분해 전달한다.
+    """
     blocks = payload.get(root_key)
     if not isinstance(blocks, list):
         result = payload.get("RESULT")
-        if isinstance(result, dict) and result.get("CODE") == "INFO-200":
-            return []
-        raise ValueError(f"예상하지 못한 NEIS 응답 구조: {root_key} 누락")
+        if isinstance(result, dict):
+            code = result.get("CODE", "")
+            if code == "INFO-200":
+                return []
+            message = result.get("MESSAGE", "")
+            raise NeisApiError(f"NEIS 오류 응답: {code} {message}".strip())
+        raise NeisApiError(f"예상하지 못한 NEIS 응답 구조: {root_key} 누락")
     rows: list[dict[str, Any]] = []
     for block in blocks:
         if isinstance(block, dict) and isinstance(block.get("row"), list):

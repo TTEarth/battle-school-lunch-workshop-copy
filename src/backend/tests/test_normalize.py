@@ -2,6 +2,7 @@
 
 import pytest
 
+from app.neis_client import NeisApiError
 from app.normalize import normalize_meals, normalize_schools
 
 
@@ -70,8 +71,14 @@ def test_normalize_schools_no_data() -> None:
 
 
 def test_normalize_schools_unexpected_shape() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(NeisApiError):
         normalize_schools({"unexpected": True})
+
+
+def test_normalize_schools_neis_error_code() -> None:
+    payload = {"RESULT": {"CODE": "ERROR-290", "MESSAGE": "인증키가 유효하지 않습니다."}}
+    with pytest.raises(NeisApiError, match="ERROR-290"):
+        normalize_schools(payload)
 
 
 def test_normalize_meals_filters_lunch_only_and_sorts() -> None:

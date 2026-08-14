@@ -65,4 +65,9 @@ cd src/frontend && npm test
 
 # E2E (프론트엔드 dev 서버 또는 Compose 기동 후)
 cd src/e2e && npm install && npx playwright install chromium && npm test
+
+# 실백엔드 관통 E2E (NEIS 대역 사용)
+python src/e2e/neis_stub.py &                                   # :9310
+NEIS_BASE_URL=http://localhost:9310 NEIS_API_KEY=stub uvicorn app.main:app  # src/backend에서
+E2E_FULL=1 npm test                                             # src/e2e에서
 ```

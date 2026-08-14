@@ -170,3 +170,13 @@ def test_neis_failure_returns_502() -> None:
     client = use_client(fake)
     response = client.get("/api/schools", params={"keyword": "서울"})
     assert response.status_code == 502
+
+
+def test_neis_error_payload_returns_502() -> None:
+    """인증 오류 등 NEIS RESULT 오류 코드도 502로 매핑된다."""
+    fake = FakeNeisClient(
+        school_payload={"RESULT": {"CODE": "ERROR-290", "MESSAGE": "인증키 오류"}}
+    )
+    client = use_client(fake)
+    response = client.get("/api/schools", params={"keyword": "서울"})
+    assert response.status_code == 502
