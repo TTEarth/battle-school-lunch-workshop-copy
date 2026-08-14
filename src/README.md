@@ -9,6 +9,7 @@ src/
   openapi.json    # 내부(프론트-백엔드) API 계약
   backend/        # FastAPI 백엔드 (NEIS 중계, 중식 필터, 검증, 정규화)
   frontend/       # React(Vite) 프론트엔드 (3단계 UI)
+  mcp/            # MCP 서버 (공식 MCP SDK 1.x, Streamable HTTP, AI 에이전트용 도구)
   e2e/            # Playwright E2E 테스트
 ```
 
@@ -37,6 +38,7 @@ $env:NEIS_API_KEY="<키>"; ./scripts/run-app.ps1 -Local  # Docker 없이 로컬 
 
 - 프론트엔드: http://localhost:5173
 - 백엔드: http://localhost:8000 (문서: /docs)
+- MCP 서버: http://localhost:8001/mcp (Streamable HTTP)
 
 ## 로컬 개발
 
@@ -50,6 +52,12 @@ uvicorn app.main:app --reload
 cd src/frontend
 npm install
 npm run dev
+
+# MCP 서버
+cd src/mcp
+pip install "mcp>=1.0,<2" httpx pytest
+python -m app.server                      # Streamable HTTP, http://localhost:8001/mcp
+npx @modelcontextprotocol/inspector       # MCP 인스펙터로 접속해 도구 확인
 ```
 
 환경 변수는 루트 `.env.example` 참고 (`NEIS_API_KEY` 등).
@@ -59,6 +67,9 @@ npm run dev
 ```bash
 # 백엔드 단위/통합 테스트
 cd src/backend && python -m pytest
+
+# MCP 서버 단위/통합 테스트
+cd src/mcp && python -m pytest
 
 # 프론트엔드 통합 테스트
 cd src/frontend && npm test
