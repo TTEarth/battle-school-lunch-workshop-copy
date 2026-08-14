@@ -11,6 +11,7 @@
 ## 앱 구조와 실행/테스트 명령
 
 - 실행: `docker compose up --build` 또는 `scripts/run-app.ps1` / `scripts/run-app.sh` (`-Local`/`--local`은 Docker 없이 실행). `NEIS_API_KEY` 환경 변수 필요(`.env.example` 참고).
+- Azure 배포: `azd up` (루트 `azure.yaml` + `infra/` bicep, Container Apps + ACR 원격 빌드). `NEIS_API_KEY`는 `azd env set`으로 주입합니다.
 - 백엔드 테스트: `cd src/backend && python -m pytest` (단위+통합).
 - 프론트엔드 테스트: `cd src/frontend && npm test` (Vitest 통합), 타입 검사는 `npx tsc --noEmit`.
 - E2E: `cd src/e2e && npm test` (라우트 목 기반). 실백엔드 관통 테스트는 `neis_stub.py`(:9310) + 백엔드(`NEIS_BASE_URL=http://localhost:9310`) + 프론트 dev 서버 기동 후 `E2E_FULL=1`로 실행.

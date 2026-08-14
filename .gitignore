@@ -6,6 +6,9 @@
 .env.*
 !.env.example
 
+# Azure Developer CLI
+.azure/
+
 # Node.js
 node_modules/
 coverage/

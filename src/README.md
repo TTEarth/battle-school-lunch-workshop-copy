@@ -54,6 +54,21 @@ npm run dev
 
 환경 변수는 루트 `.env.example` 참고 (`NEIS_API_KEY` 등).
 
+## Azure 배포 (azd)
+
+Azure Developer CLI로 Container Apps에 배포합니다. 인프라는 `infra/` bicep, 서비스 정의는 루트 `azure.yaml`에 있습니다. 이미지 빌드는 ACR 원격 빌드를 사용하므로 로컬 Docker가 필요 없습니다.
+
+```bash
+azd auth login
+azd env new <환경이름>
+azd env set NEIS_API_KEY <발급받은 키>
+azd up          # 프로비저닝(리소스 그룹/ACR/Container Apps) + 빌드 + 배포
+```
+
+- 배포 후 `FRONTEND_URI`/`BACKEND_URI`가 출력됩니다.
+- 프론트엔드는 프로덕션에서 nginx가 정적 파일을 서빙하며 `/api`를 백엔드 Container App으로 프록시합니다(`Dockerfile.azure`, `nginx.conf.template`).
+- 정리는 `azd down`.
+
 ## 테스트
 
 ```bash
