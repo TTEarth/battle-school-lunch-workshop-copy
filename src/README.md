@@ -9,6 +9,7 @@ src/
   openapi.json    # 내부(프론트-백엔드) API 계약
   backend/        # FastAPI 백엔드 (NEIS 중계, 중식 필터, 검증, 정규화)
   frontend/       # React(Vite) 프론트엔드 (3단계 UI)
+  mcp/            # MCP 서버 (공식 MCP SDK 1.x, Streamable HTTP, AI 에이전트용 도구)
   e2e/            # Playwright E2E 테스트
 ```
 
@@ -37,6 +38,7 @@ $env:NEIS_API_KEY="<키>"; ./scripts/run-app.ps1 -Local  # Docker 없이 로컬 
 
 - 프론트엔드: http://localhost:5173
 - 백엔드: http://localhost:8000 (문서: /docs)
+- MCP 서버: http://localhost:8001/mcp (Streamable HTTP)
 
 ## 로컬 개발
 
@@ -50,15 +52,41 @@ uvicorn app.main:app --reload
 cd src/frontend
 npm install
 npm run dev
+
+# MCP 서버
+cd src/mcp
+pip install "mcp>=1.0,<2" httpx pytest
+python -m app.server                      # Streamable HTTP, http://localhost:8001/mcp
+npx @modelcontextprotocol/inspector       # MCP 인스펙터로 접속해 도구 확인
 ```
 
 환경 변수는 루트 `.env.example` 참고 (`NEIS_API_KEY` 등).
+
+## Azure 배포 (azd)
+
+Azure Developer CLI로 Container Apps에 배포합니다. 인프라는 `infra/` bicep, 서비스 정의는 루트 `azure.yaml`에 있습니다(backend, frontend, mcp 3개 서비스). 이미지 빌드는 ACR 원격 빌드를 사용하므로 로컬 Docker가 필요 없습니다.
+
+```bash
+azd auth login
+azd env new <환경이름>
+azd env set NEIS_API_KEY <발급받은 키>
+azd up          # 프로비저닝(리소스 그룹/ACR/Container Apps) + 빌드 + 배포
+```
+
+- 배포 후 `FRONTEND_URI`/`BACKEND_URI`/`MCP_URI`가 출력됩니다.
+- MCP 서버는 `MCP_URI`(`https://.../mcp`)로 Streamable HTTP 연결이 가능합니다.
+- 프론트엔드는 프로덕션에서 nginx가 정적 파일을 서빙하며 `/api`를 백엔드 Container App으로 프록시합니다(`Dockerfile.azure`, `nginx.conf.template`).
+- 정리는 `azd down`.
+
 
 ## 테스트
 
 ```bash
 # 백엔드 단위/통합 테스트
 cd src/backend && python -m pytest
+
+# MCP 서버 단위/통합 테스트
+cd src/mcp && python -m pytest
 
 # 프론트엔드 통합 테스트
 cd src/frontend && npm test

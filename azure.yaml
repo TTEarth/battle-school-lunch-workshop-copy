@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+name: battle-school-lunch
+metadata:
+  template: battle-school-lunch@1.0.0
+services:
+  backend:
+    project: ./src/backend
+    language: py
+    host: containerapp
+    docker:
+      remoteBuild: true
+  frontend:
+    project: ./src/frontend
+    language: ts
+    host: containerapp
+    docker:
+      path: ./Dockerfile.azure
+      remoteBuild: true
+  mcp:
+    project: ./src/mcp
+    language: py
+    host: containerapp
+    docker:
+      remoteBuild: true

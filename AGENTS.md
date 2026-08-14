@@ -5,16 +5,18 @@
 ## 프로젝트 개요
 
 - 이 저장소에는 워크숍 문서, GitHub 설정, `openapi.json`(외부 NEIS 계약), `data/` 원본 자료, 그리고 `src/` 아래 구현된 앱이 포함됩니다.
-- 앱 구성: `src/backend`(FastAPI), `src/frontend`(React+Vite), `src/e2e`(Playwright), `src/openapi.json`(내부 프론트-백엔드 계약), 루트 `docker-compose.yml`, `scripts/run-app.{ps1,sh}`.
+- 앱 구성: `src/backend`(FastAPI), `src/frontend`(React+Vite), `src/mcp`(공식 MCP SDK 1.x 기반 MCP 서버, Streamable HTTP), `src/e2e`(Playwright), `src/openapi.json`(내부 프론트-백엔드 계약), 루트 `docker-compose.yml`, `scripts/run-app.{ps1,sh}`.
 - 기존 문서, 이슈, PR 템플릿, CI 설정이 있으면 새 규칙보다 먼저 존중합니다.
 
 ## 앱 구조와 실행/테스트 명령
 
 - 실행: `docker compose up --build` 또는 `scripts/run-app.ps1` / `scripts/run-app.sh` (`-Local`/`--local`은 Docker 없이 실행). `NEIS_API_KEY` 환경 변수 필요(`.env.example` 참고).
+- Azure 배포: `azd up` (루트 `azure.yaml` + `infra/` bicep, Container Apps + ACR 원격 빌드, backend/frontend/mcp 3개 서비스). `NEIS_API_KEY`는 `azd env set`으로 주입합니다.
 - 백엔드 테스트: `cd src/backend && python -m pytest` (단위+통합).
+- MCP 서버: `cd src/mcp && python -m app.server`로 실행(Streamable HTTP, 기본 :8001, 엔드포인트 `/mcp`). 테스트는 `cd src/mcp && python -m pytest` (단위+통합).
 - 프론트엔드 테스트: `cd src/frontend && npm test` (Vitest 통합), 타입 검사는 `npx tsc --noEmit`.
 - E2E: `cd src/e2e && npm test` (라우트 목 기반). 실백엔드 관통 테스트는 `neis_stub.py`(:9310) + 백엔드(`NEIS_BASE_URL=http://localhost:9310`) + 프론트 dev 서버 기동 후 `E2E_FULL=1`로 실행.
-- 백엔드 계층: `validation.py`(입력 검증) → `neis_client.py`(NEIS 호출) → `normalize.py`(정규화·중식 필터) → `main.py`(API·오류 매핑). 이 책임 분리를 유지합니다.
+- 백엔드 계층: `validation.py`(입력 검증) → `neis_client.py`(NEIS 호출) → `normalize.py`(정규화·중식 필터) → `main.py`(API·오류 매핑). 이 책임 분리를 유지합니다. `src/mcp`도 동일한 계층 구조를 따르며 `server.py`가 MCP 도구·오류 매핑을 담당합니다.
 
 ## 변경 범위와 일반 작업 지침
 
@@ -53,7 +55,7 @@
 ## 테스트와 검증 원칙
 
 - 테스트, 포맷팅, 린트, 타입 검사, 빌드는 저장소에 실제로 구성된 도구만 사용합니다.
-- 존재하지 않는 테스트 러너나 명령을 문서에 단정적으로 적지 않습니다. 현재 구성: pytest(백엔드), Vitest(프론트엔드), Playwright(E2E).
+- 존재하지 않는 테스트 러너나 명령을 문서에 단정적으로 적지 않습니다. 현재 구성: pytest(백엔드·MCP 서버), Vitest(프론트엔드), Playwright(E2E).
 - 코드 변경 시에는 가능한 한 가장 좁은 범위의 검증부터 실행합니다.
 - 문서 변경이라면 관련 문서 정합성과 링크, 현재 저장소 상태와의 일치 여부를 우선 검토합니다.
 - 향후 앱 구현 후에는 프론트엔드, 백엔드, E2E 테스트 위치와 명령을 실제 구성에 맞게 이 문서에 반영합니다.

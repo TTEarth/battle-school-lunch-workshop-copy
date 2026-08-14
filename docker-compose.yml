@@ -15,3 +15,12 @@ services:
       - "5173:5173"
     depends_on:
       - backend
+
+  mcp:
+    build: ./src/mcp
+    environment:
+      NEIS_BASE_URL: ${NEIS_BASE_URL:-https://open.neis.go.kr}
+      NEIS_API_KEY: ${NEIS_API_KEY:-}
+      MCP_PORT: "8001"
+    ports:
+      - "8001:8001"
