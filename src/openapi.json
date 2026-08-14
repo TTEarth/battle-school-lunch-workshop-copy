@@ -1,0 +1,133 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "급식 배틀 내부 API",
+    "description": "프론트엔드와 백엔드 간 통신 계약. 프론트엔드는 이 명세만 의존한다.",
+    "version": "1.0.0"
+  },
+  "servers": [{ "url": "/" }],
+  "paths": {
+    "/api/schools": {
+      "get": {
+        "operationId": "searchSchools",
+        "summary": "학교명 일부로 학교 검색",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "minLength": 1 },
+            "description": "학교명 일부 문자열"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "정규화된 학교 목록 (없으면 빈 배열)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SchoolSearchResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "502": { "$ref": "#/components/responses/UpstreamError" }
+        }
+      }
+    },
+    "/api/meals": {
+      "get": {
+        "operationId": "searchMeals",
+        "summary": "학교와 날짜 범위 기준 중식 급식 조회",
+        "parameters": [
+          { "name": "atpt_code", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "school_code", "in": "query", "required": true, "schema": { "type": "string" } },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "날짜순 중식 목록 (없으면 빈 배열)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MealSearchResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "502": { "$ref": "#/components/responses/UpstreamError" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "School": {
+        "type": "object",
+        "required": ["atpt_code", "atpt_name", "school_code", "school_name"],
+        "properties": {
+          "atpt_code": { "type": "string" },
+          "atpt_name": { "type": "string" },
+          "school_code": { "type": "string" },
+          "school_name": { "type": "string" },
+          "school_kind": { "type": ["string", "null"] },
+          "address": { "type": ["string", "null"] }
+        }
+      },
+      "SchoolSearchResponse": {
+        "type": "object",
+        "required": ["schools"],
+        "properties": {
+          "schools": { "type": "array", "items": { "$ref": "#/components/schemas/School" } }
+        }
+      },
+      "Meal": {
+        "type": "object",
+        "required": ["meal_date", "meal_name", "dishes"],
+        "properties": {
+          "meal_date": { "type": "string", "format": "date" },
+          "meal_name": { "type": "string" },
+          "dishes": { "type": "array", "items": { "type": "string" } },
+          "calories": { "type": ["string", "null"] },
+          "origin": { "type": ["string", "null"] },
+          "nutrition": { "type": ["string", "null"] }
+        }
+      },
+      "MealSearchResponse": {
+        "type": "object",
+        "required": ["meals"],
+        "properties": {
+          "meals": { "type": "array", "items": { "$ref": "#/components/schemas/Meal" } }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["detail"],
+        "properties": { "detail": { "type": "string" } }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "잘못된 입력",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+        }
+      },
+      "UpstreamError": {
+        "description": "외부 데이터 소스 오류",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+        }
+      }
+    }
+  }
+}

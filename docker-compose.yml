@@ -1,0 +1,17 @@
+services:
+  backend:
+    build: ./src/backend
+    environment:
+      NEIS_BASE_URL: ${NEIS_BASE_URL:-https://open.neis.go.kr}
+      NEIS_API_KEY: ${NEIS_API_KEY:-}
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./src/frontend
+    environment:
+      BACKEND_URL: http://backend:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend

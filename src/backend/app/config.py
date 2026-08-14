@@ -1,0 +1,19 @@
+"""애플리케이션 설정. 환경 변수로 외부 API 접근 설정을 주입한다."""
+
+import os
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Settings:
+    neis_base_url: str
+    neis_api_key: str
+    request_timeout: float
+
+
+def get_settings() -> Settings:
+    return Settings(
+        neis_base_url=os.environ.get("NEIS_BASE_URL", "https://open.neis.go.kr"),
+        neis_api_key=os.environ.get("NEIS_API_KEY", ""),
+        request_timeout=float(os.environ.get("NEIS_TIMEOUT_SECONDS", "10")),
+    )
