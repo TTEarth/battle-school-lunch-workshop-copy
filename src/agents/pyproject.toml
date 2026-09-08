@@ -1,0 +1,25 @@
+[project]
+name = "lunch-battle-agents"
+version = "1.0.0"
+description = "급식 배틀 멀티에이전트 앱 - Microsoft Agent Framework Concurrent 패턴 기반 급식 비교 평가"
+requires-python = ">=3.11"
+dependencies = [
+    "agent-framework-core>=1.14",
+    "agent-framework-ag-ui>=1.1",
+    "agent-framework-github-copilot>=1.0",
+    "agent-framework-devui>=0.1b1",
+    "mcp>=1.0,<2",
+    "fastapi>=0.121",
+    "uvicorn[standard]>=0.29",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

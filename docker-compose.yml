@@ -11,10 +11,12 @@ services:
     build: ./src/frontend
     environment:
       BACKEND_URL: http://backend:8000
+      AGENT_URL: http://agents:8002
     ports:
       - "5173:5173"
     depends_on:
       - backend
+      - agents
 
   mcp:
     build: ./src/mcp
@@ -24,3 +26,17 @@ services:
       MCP_PORT: "8001"
     ports:
       - "8001:8001"
+
+  agents:
+    build: ./src/agents
+    environment:
+      MCP_URL: http://mcp:8001/mcp
+      AGENT_LLM_BACKEND: ${AGENT_LLM_BACKEND:-github-models}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_MODELS_MODEL: ${GITHUB_MODELS_MODEL:-openai/gpt-4.1-mini}
+      GITHUB_COPILOT_MODEL: ${GITHUB_COPILOT_MODEL:-}
+      AGENT_PORT: "8002"
+    ports:
+      - "8002:8002"
+    depends_on:
+      - mcp

@@ -120,3 +120,83 @@ button:disabled {
   background: #fee2e2;
   border-color: #fca5a5;
 }
+
+/* 상단 고정 탭 */
+.app-header {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid #eee;
+  z-index: 10;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tab {
+  padding: 0.4rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px 6px 0 0;
+  background: #f7f7f7;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.page-title {
+  margin-top: 1rem;
+}
+
+/* 분석 페이지 */
+textarea {
+  width: 100%;
+  font-family: inherit;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+.progress-log {
+  list-style: none;
+  padding-left: 0;
+  color: #555;
+}
+
+.progress-log li::before {
+  content: "· ";
+}
+
+.school-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.total-score {
+  color: #2563eb;
+  margin-left: 0.5rem;
+}
+
+.badge {
+  background: #16a34a;
+  color: #fff;
+  border-radius: 4px;
+  padding: 0.1rem 0.5rem;
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.badge.loser {
+  background: #9ca3af;
+}
+
+.verdict-text {
+  white-space: pre-wrap;
+}
