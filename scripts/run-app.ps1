@@ -42,6 +42,20 @@ $backend = Start-Process python -ArgumentList "-m", "uvicorn", "app.main:app", "
 Pop-Location
 Write-Host "백엔드 시작됨 (PID $($backend.Id)) - http://localhost:8000"
 
+# MCP 서버 기동
+Push-Location src\mcp
+python -m pip install --quiet "mcp>=1.0,<2" httpx
+$mcp = Start-Process python -ArgumentList "-m", "app.server" -PassThru -NoNewWindow
+Pop-Location
+Write-Host "MCP 서버 시작됨 (PID $($mcp.Id)) - http://localhost:8001/mcp"
+
+# 멀티에이전트 서버 기동
+Push-Location src\agents
+python -m pip install --quiet --pre "agent-framework-core>=1.14" "agent-framework-ag-ui>=1.1" "agent-framework-github-copilot>=1.0" "mcp>=1.0,<2" fastapi "uvicorn[standard]" httpx
+$agents = Start-Process python -ArgumentList "-m", "app.server" -PassThru -NoNewWindow
+Pop-Location
+Write-Host "멀티에이전트 서버 시작됨 (PID $($agents.Id)) - http://localhost:8002/agent"
+
 # 프론트엔드 의존성 설치 및 기동 (포그라운드)
 Push-Location src\frontend
 if (-not (Test-Path node_modules)) { npm install --no-audit --no-fund }
@@ -51,8 +65,10 @@ try {
 }
 finally {
     Pop-Location
-    if (-not $backend.HasExited) {
-        Stop-Process -Id $backend.Id -Force
-        Write-Host "백엔드(PID $($backend.Id)) 종료됨"
+    foreach ($proc in @($backend, $mcp, $agents)) {
+        if ($proc -and -not $proc.HasExited) {
+            Stop-Process -Id $proc.Id -Force
+            Write-Host "서버(PID $($proc.Id)) 종료됨"
+        }
     }
 }

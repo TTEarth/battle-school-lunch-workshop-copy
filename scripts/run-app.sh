@@ -36,11 +36,29 @@ BACKEND_PID=$!
 popd >/dev/null
 echo "백엔드 시작됨 (PID $BACKEND_PID) - http://localhost:8000"
 
+# MCP 서버 기동
+pushd src/mcp >/dev/null
+python -m pip install --quiet "mcp>=1.0,<2" httpx
+python -m app.server &
+MCP_PID=$!
+popd >/dev/null
+echo "MCP 서버 시작됨 (PID $MCP_PID) - http://localhost:8001/mcp"
+
+# 멀티에이전트 서버 기동
+pushd src/agents >/dev/null
+python -m pip install --quiet --pre "agent-framework-core>=1.14" "agent-framework-ag-ui>=1.1" "agent-framework-github-copilot>=1.0" "mcp>=1.0,<2" fastapi "uvicorn[standard]" httpx
+python -m app.server &
+AGENTS_PID=$!
+popd >/dev/null
+echo "멀티에이전트 서버 시작됨 (PID $AGENTS_PID) - http://localhost:8002/agent"
+
 cleanup() {
-  if kill -0 "$BACKEND_PID" 2>/dev/null; then
-    kill "$BACKEND_PID" 2>/dev/null || true
-    echo "백엔드(PID $BACKEND_PID) 종료됨"
-  fi
+  for pid in "$BACKEND_PID" "$MCP_PID" "$AGENTS_PID"; do
+    if kill -0 "$pid" 2>/dev/null; then
+      kill "$pid" 2>/dev/null || true
+      echo "서버(PID $pid) 종료됨"
+    fi
+  done
 }
 trap cleanup EXIT
 
